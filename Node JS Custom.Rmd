@@ -1,0 +1,161 @@
+---
+title: "Node JS Custom Installation"
+author: 'Author: Scott Schelb'
+date: 'Date: 7-1-2022'
+output: html_document
+css: styleguide.css
+
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Objective
+Install a legacy version of NodeJS from source code, which is available via GitHub.
+
+## Summary
+A Linux user is required to utilize an earlier version of NodeJS, in order to accomplish their development objectives. Most Linux repositories contain a current version of NodeJS, which a Package Manager application can easily query and install. One of the ways to obtain earlier NodeJS versions, is to obtain the source code, and install it manually.
+<br>
+<br>
+This document illustrates the process obtaining and installing from source code. Most of the steps will contain a bullet summary, a field where the user can copy the commands to paste into their terminal, and a screenshot to further illustrate each step.  
+
+## Assumptions
++ User has admin rights to the system, and can log into it via the 'su' (super user) command
++ User has the application git installed on their host system.
++ User host system has current version Python 3 installed. 
+
+## Steps
+
++ Create, and change into a directory to download and work with whichever version of NodeJS is required. In this case, version 7.2.1 is required:
+```{bash eval=FALSE, include=TRUE}
+# Create unique directory to download git clone:
+mkdir GitClone_NodeJS
+# Change into the newly created directory:
+cd GitClone_NodeJS
+# Commands to navigate to required branch, to download git clone:
+git clone --depth 1 \
+--branch v7.2.1 \
+https://github.com/nodejs/node
+```
+![*Ouput when cloning from Github*](/Users/scott/OneDrive/Desktop/GitHub/NodeJS/Pictures/2022-07-02 14-02-10.png)
+
+
++ Note the contents of the newly created /node directory, and its contents by using the 'ls' command. The presence of these NodeJS source files and directories, confirms the git query was successful:
+
+![*ls command showing contents of /node directory*](/Users/scott/OneDrive/Desktop/GitHub/NodeJS/Pictures/2022-07-02 14-13-23.png)
+
+<br>
+
++ A Linux community recognized best-practice, is to install all custom-built  software packages from source code, into the '/opt' directory. This is to prevent conflicts with other packages, and to make it easy to uninstall when no longer needed. Create the directory along with user-defined sub-directory. Then create a symbolic link from the newly created sub-directory, to '/opt/node': 
+```{bash eval=FALSE, include=TRUE}
+# Create the directory using any preferred naming convention after /opt/:
+mkdir /opt/NodeJS-v7.2.1
+# Create a symbolic link. This will join the source directory with the target directory. 
+ln -sT NodeJS-v7.2.1 /opt/node
+```
+<br>
+
++ The following './configure' command configures the compiler for the source code: 
+```{bash eval=FALSE, include=TRUE}
+# NOTE: replace 'NodeJS-v7.2.1', with user defined name
+./configure --prefix=/opt/NodeJS-v7.2.1 
+```
+<br>
+
++ At this point, the user may encounter difficulties when attempting to configure the installation. This error related to the existing Python installation, indicates that there is 'no such file or directory' in '/usr/bin/env':
+
+![](/Users/scott/OneDrive/Desktop/GitHub/NodeJS/Pictures/2022-07-02 17-03-43.png)
+<br>
+<br>
+
++ This immediate issue can be corrected, by creating a symbolic link between user/bin/python, and user/bin/python3:
+```{bash eval=FALSE, include=TRUE}
+# Establish the location and presence of Python and Python3 directories
+whereis python
+whereis python3
+# Create the symbolic link:
+ln -s /usr/bin/python3 /usr/bin/python
+```
+
+
+![*Output from creation of symbolic link*](/Users/scott/OneDrive/Desktop/GitHub/NodeJS/Pictures/2022-07-02 17-27-10.png)
+
+<br>
+
++ When the configuration for the installation of NodeJS is re-attempted, the output indicates the user must install an earlier version of Python, either 2.6 or 2.7. This is because the earlier version of NodeJS was created using either of the previous Python versions:
+
+![](/Users/scott/OneDrive/Desktop/GitHub/NodeJS/Pictures/2022-07-02 17-28-39.png)
+<br>
+<br>
+
++ The following commands add the Universal repository containing the legacy Python versions, query the most recent update from the repository, and installs Python2:
+```{bash eval=FALSE, include=TRUE}
+apt-add-repository universe
+apt update
+apt install python2-minimial
+```
+<br>
+
++ The following commands check all available Python versions present on the host system, which version is currently present, and then establishes the options for the user to specify which version is to be used as the default version: 
+```{bash eval=FALSE, include=TRUE}
+# List all Python versions on the host system
+ls /usr/bin/python*
+# Query which Python is currently active as the default
+# NOTE: alternatively, the command 'python -V' yields the same result
+python
+# These commands establish the alternative options selections, so the user can select
+# which Python version to use.
+update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+```
+
+![*Creating the alternative configurations*](/Users/scott/OneDrive/Desktop/GitHub/NodeJS/Pictures/2022-07-03 09-33-04.png)
+
+<br>
+
++ To establish the older version 2 of Python as the default system to be used to install NodeJS, use the following commands to make the choice, and then confirm that the selection has taken place:
+
+```{bash eval=FALSE, include=TRUE}
+# This command invokes the choices previously set for Python:
+update-alternatives --config python
+# At the prompt, make the selection for the sytem to choose:
+1
+# Conform the Python version now set as the default system:
+python -V
+```
+<br>
+
+
+
+![*Selecting the alternative configurations*](/Users/scott/OneDrive/Desktop/GitHub/NodeJS/Pictures/2022-07-03 09-43-25.png)
+
+<br>
+
++ Re-attempt the configuration of the compilation of NodeJS using Python 2.7, using the command './configure --prefix=/opt/NodeJS-v7.2.1/' as outlined previously. In this case, there are two WARNING commands that require attention. [NOTE: This is a known issue, and the work-around is being investigated. An update to this document will be posted as soon as it is available]: 
+
+![](/Users/scott/OneDrive/Desktop/GitHub/NodeJS/Pictures/2022-07-03 09-47-41.png)
+<br>
+<br>
+
++ The 'make' command executes the compiling of the source code. The 'echo' command results in an 'OK' message generation only after the successful completion of the compilation. The absence of the 'OK' message after the long string of text generated during the compilation of the source code, would indicate a problem occurred. The 'make' command would then need to be re-attempted
+```{bash eval=FALSE, include=TRUE}
+# This make command executes the compilation of the source code. 
+# && indicates a subsequent command. In this case 'OK" should be output, at the successful completion of the compilation. 
+make && echo OK
+```
+
+
+## References
++ Document format based on a modified version of Google Open Source format style guide, with '*Roboto Condensed sans-serif*' font style: https://github.com/google/styleguide
++ Github containing NodeJS source code: https://github.com/nodejs/node/tree/main
++ Installing legacy version of Python: https://www.how2shout.com/linux/how-to-install-python-2-7-on-ubuntu-20-04-lts/
++ General guidelines for installing Linux programs from source code: https://itsfoss.com/install-software-from-source-code/
+
++ Potential solutions for the compiler issue uncovered during installation:<br>
+https://stackoverflow.com/questions/65824102/how-to-install-gcc-3-4-and-g-3-4-on-latest-ubuntu
+https://stackoverflow.com/questions/13044358/install-multiple-versions-of-gor-gcc
+
+## Session Information:
+```{r}
+sessionInfo()
+```
+
