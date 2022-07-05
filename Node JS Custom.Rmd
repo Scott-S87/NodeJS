@@ -10,13 +10,13 @@ css: styleguide.css
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Objective
-Install a legacy version of NodeJS from source code, which is available via GitHub.
+Install a legacy version of NodeJS from source code, made available via GitHub repositories.
 
 ## Summary
-A Linux user is required to utilize an earlier version of NodeJS, in order to accomplish their development objectives. Most Linux repositories contain a current version of NodeJS, which a Package Manager application can easily query and install. One of the ways to obtain earlier NodeJS versions, is to obtain the source code, and install it manually.
+A Linux user is required to utilize an earlier version of NodeJS, in order to accomplish certain development objectives. Most Linux software repositories contain one of the more recent versions of NodeJS. A Package Manager application native to their Linux distribution is used to easily query and install software. However, for legacy versions, there are limited means by which to obtain the software. These involve accessing the the source code, downloading it, configuring it, compiling it, and installing it manually. 
 <br>
 <br>
-This document illustrates the process obtaining and installing from source code. Most of the steps will contain a bullet summary, a field where the user can copy the commands to paste into their terminal, and a screenshot to further illustrate each step.  
+This document illustrates the process obtaining and installing from source code. Most of the steps will contain a bullet summary, a field where the user can copy the commands from to paste into their terminal, and a screenshot to further illustrate each step.  
 
 ## Assumptions
 + User has admin rights to the system, and can log into it via the 'su' (super user) command
